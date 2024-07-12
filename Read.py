@@ -1,5 +1,6 @@
 from scipy.io import loadmat
-
+import numpy as np
+#time in sec
 
 ### Read Matlab Dat
 '''
@@ -21,17 +22,20 @@ BC501_ID = 8
 
 
 
-def GetMatlabData(filename, channel=1):
-    data = loadmat(filename,struct_as_record=False,simplify_cells=True)
+def GetMatlabData(fileName,  mod = 'Energy', channel=1):
+    fileName = 'WorkData\\' + fileName + '\\' + fileName + '_' + mod + '.fig'
+    data = loadmat(fileName,struct_as_record=False,simplify_cells=True)
     x = data['hgS_070000']['children'][channel]['children'][0]['properties']['XData']
     y = data['hgS_070000']['children'][channel]['children'][0]['properties']['YData']
-    return x,y
+    return [x, y]
 
 def Get2DMatlabData(filename, channel=1):
+    mod = 'PSD'
+    fileName = 'WorkData\\' + fileName + '\\' + fileName + '_' + mod + '.fig'
     data = loadmat(filename,struct_as_record=False,simplify_cells=True)
     x = data['hgS_070000']['children'][channel]['children'][0]['properties']['XData']
     y = data['hgS_070000']['children'][channel]['children'][0]['properties']['YData']
     z = data['hgS_070000']['children'][channel]['children'][0]['properties']['CData']
-    return x,y,z
+    z = np.pow(z, 10)
+    return [x, y, z]
 
-    
