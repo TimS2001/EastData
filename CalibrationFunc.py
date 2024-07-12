@@ -17,8 +17,8 @@ def linCon(data, par = 2):
 
 #Get data from .mat files
 
-def GetData(Energy):
-    fileName = 'Read_scale_data\\exp_data\\BC501A_N' + np.str_(Energy) + '.mat'
+def GetData(Energy, Detector = 'BC501A'):
+    fileName = 'Read_scale_data\\exp_data\\' + Detector + '_N' + np.str_(Energy) + '.mat'
     data = loadmat(fileName,struct_as_record=False,simplify_cells=True)
 
     data = data['draw_Recoil_Proton']
@@ -59,8 +59,8 @@ def plotWithout(Hist, str1, koef = 2):
  
 
 
-
-def plotAndFind(Hist, str1, levels, limitsY, limitsX, modSave = 0, koef = 2):#levels - where is a peak, limits - sizes of graph
+#levels - where is a peak, limits - sizes of graph
+def plotAndFind(Hist, str1, levels, limitsY, limitsX, modSave = 0, koef = 2, Detector = 'BC501A'): 
     Hist = linCon(Hist, koef)
     #Hist = np.array(Hist)
     DHist = RealDeriv(Hist)
@@ -102,7 +102,7 @@ def plotAndFind(Hist, str1, levels, limitsY, limitsX, modSave = 0, koef = 2):#le
 
     plt.show()
     if(modSave == 1):
-        fig.savefig('CalibrationPictures/' + 'Resp_' + str1 + 'keV' + '.png', bbox_inches='tight', pad_inches=0, dpi=600)
+        fig.savefig('CalibrationPictures/' + Detector + '_' + str1 + 'keV' + '.png', bbox_inches='tight', pad_inches=0, dpi=600)
     
     return E
         
@@ -126,7 +126,7 @@ def Error(Energy, Light):
     return err
 
 
-def GetKoefs(Energies, Channels, modSave = 0): #E = MeV, Ch ~ 1
+def GetKoefs(Energies, Channels, modSave = 0, Detector = 'BC501A'): #E = MeV, Ch ~ 1
 
     Light = Channels
     Energy = Energies
@@ -169,7 +169,7 @@ def GetKoefs(Energies, Channels, modSave = 0): #E = MeV, Ch ~ 1
 
     plt.show()
     if(modSave == 1):
-        figure.savefig('CalibrationPictures/' + 'Calibration' + '.png', bbox_inches='tight', pad_inches=0, dpi=600)
+        figure.savefig('CalibrationPictures/' + Detector + '_Calibration' + '.png', bbox_inches='tight', pad_inches=0, dpi=600)
 
     #v = [3.285, 103.4, 0.03017, 1.00428]
     v[0] = round(v[0] * 1e3) / 1e3

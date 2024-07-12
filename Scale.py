@@ -1,12 +1,15 @@
-from scipy.io import loadmat
 import numpy as np
 import matplotlib.pyplot as plt
 #
 
-from CalibrationFunc import plotAndFind, plotWithout, GetKoefs, GetData
+from CalibrationFunc import GetData, plotAndFind, plotWithout, GetKoefs
 
+Detector = 'EJ301'
 
-E = [2040, 2520, 3940, 4530, 5510]
-Ch = [246.90068039812957, 343.21905023358335, 673.7484029249783, 813.019744529321, 1070.0095842600263]
+Energy = 5510
 
-GetKoefs(E, Ch, 0)
+Hist = GetData(Energy, Detector)
+
+plotWithout(Hist, 'data', koef = 8)
+
+#Channel = plotAndFind(Hist, np.str_(Energy), [190, 300], [0, 4e3], [0, 350], modSave = 0, koef = 2)
