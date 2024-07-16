@@ -115,6 +115,13 @@ def F(E, v):
     L = v[0] * E - v[1] * (1.0 - math.exp(-v[2] * math.pow(E, v[3])))
     return L
 
+
+def F_LINE_VERS(E, v):
+    a1 = math.pow(1. / v[0], 1. / v[1])
+    a2 =  1. / v[1]
+    L = a1 * math.pow(E, a2)
+    return L   
+
 def Error(Energy, Light):
     def err(v):
         df = 0
@@ -125,15 +132,24 @@ def Error(Energy, Light):
         return df
     return err
 
+def Error_LIN_VERS(Energy, Light):
+    def err(v):
+        df = 0
+        for i in range(0, len(Energy)):
+            L = Light[i]
+            E = v[0] * math.pow(L, v[1])
+            df += (E - Energy[i]) * (E - Energy[i])
+        return df
+    return err
 
-def GetKoefs(Energies, Channels, modSave = 0, Detector = 'BC501A'): #E = MeV, Ch ~ 1
+def GetKoefs(Energies, Channels, v0, modSave = 0, Detector = 'BC501A'): #E = MeV, Ch ~ 1
 
     Light = Channels
     Energy = Energies
 
     Light = np.array(Light)
 
-    v0 = np.array([1.0, 1.0, 1.0, 1.0])
+    
 
     res = minimize(Error(Energy, Light), v0)
     a0 = res.x[0]
@@ -162,19 +178,67 @@ def GetKoefs(Energies, Channels, modSave = 0, Detector = 'BC501A'): #E = MeV, Ch
     str = 'data'
     ax.plot(X1, Y1, linewidth=2.0, label = 'approx')
 
-    ax.set_ylabel('Channel', fontsize = 12)
+    ax.set_ylabel('Light, Channel', fontsize = 12)
     ax.set_xlabel('Energy, keV', fontsize=12)
     plt.legend(loc='upper right')
     ax.grid(which='major')
 
     plt.show()
     if(modSave == 1):
-        figure.savefig('CalibrationPictures/' + Detector + '_Calibration' + '.png', bbox_inches='tight', pad_inches=0, dpi=600)
+        figure.savefig('CalibrationPictures/' + Detector + '_Calibration_Light' + '.png', bbox_inches='tight', pad_inches=0, dpi=600)
 
     #v = [3.285, 103.4, 0.03017, 1.00428]
     v[0] = round(v[0] * 1e3) / 1e3
     v[1] = round(v[1] * 1e1) / 1e1
     v[2] = round(v[2] * 1e5) / 1e5
     v[3] = round(v[3] * 1e5) / 1e5
+
+    return v
+
+
+def GetKoefs_LIN_VERS(Energies, Channels, v0, modSave = 0, Detector = 'BC501A'):
+    Light = Channels
+    Energy = Energies
+
+    Light = np.array(Light)
+
+
+    res = minimize(Error_LIN_VERS(Energy, Light), v0)
+    a0 = res.x[0]
+    a1 = res.x[1]
+
+    v = [a0, a1]
+
+    X1 = []
+    Y1 = []
+    dy = 0.5
+    y1 = 1.0
+    
+    while(y1 < 8):
+        x1 = F_LINE_VERS(y1, v)
+        Y1.append(y1)
+        X1.append(x1)
+        y1 += dy
+
+    figure = plt.figure(figsize=(5, 5))
+    ax = figure.add_subplot()
+
+    ax.plot(Light, Energy, 'o', linewidth=2, label = 'cal. points')
+
+    str = 'data'
+    ax.plot(X1, Y1, linewidth=2.0, label = 'approx')
+
+    ax.set_xlabel('Light, Channel', fontsize = 12)
+    ax.set_ylabel('Energy, keV', fontsize=12)
+    plt.legend(loc='upper right')
+    ax.grid(which='major')
+
+    plt.show()
+    if(modSave == 1):
+        figure.savefig('CalibrationPictures/' + Detector + '_Calibration_Energy' + '.png', bbox_inches='tight', pad_inches=0, dpi=600)
+
+    #v = [3.285, 103.4, 0.03017, 1.00428]
+    #v[0] = round(v[0] * 1e3) / 1e3
+    #v[1] = round(v[1] * 1e1) / 1e1
 
     return v
